@@ -1,0 +1,71 @@
+import re
+import webbrowser
+import pandas
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import numpy as np
+import json
+
+Приказы = []
+Распоряжения = []
+Дополнительные_соглашения = []
+Письма = []
+
+tarifs_individual = []
+tarifs_individuals = []
+tarifs_electro = []
+tarifs_water = []
+tarifs_water_disposal = []
+tarifs_hot_water = []
+tarifs_gas = []
+
+
+with open('wer.txt', 'r',  encoding='utf-16', errors='ignore') as f:
+    lines = ''.join(f.readlines())
+    lines = '; '.join(lines.split('\n\n'))
+    lines = ' '.join(lines.split('\n'))
+    lines = lines.split(';')
+    for doc in lines:
+        if 'Приказ' in doc:
+             Приказы.append(doc)
+        # elif 'Распоряжение' in doc:
+        #     Распоряжения.append((doc))
+        # elif 'Дополнительное соглашение' in doc:
+        #     Дополнительные_соглашения.append((doc))
+        # elif 'Письмо' in doc:
+        #     Письма.append((doc))
+
+for s in Приказы:
+    if 'по индивидуальному' in s:
+        tarifs_individual.append(s)
+    elif'присоединение газоиспользующего оборудования к газораспределительным сетям' in s:
+        tarifs_gas.append((s))
+    elif 'к централизованной системе водоотведения ' in s:
+        tarifs_water_disposal.append((s))
+    elif 'к централизованной системе холодного водоснабжения' in s:
+        tarifs_water.append((s))
+    elif ' за технологическое присоединение к электрическим сетям ' in s:
+        tarifs_electro.append((s))
+    elif 'подключение к системе теплоснабжения' in s:
+        tarifs_hot_water.append((s))
+
+
+#
+# 'к централизованным системам холодного водоснабжения ' or
+
+df = pd.DataFrame({'Индивидуальщики': tarifs_individual})
+df['Газоснабжение'] = pd.Series(tarifs_gas)
+df['Водоотведение'] = pd.Series(tarifs_water_disposal)
+df['Водоснабжение'] = pd.Series(tarifs_water)
+df['Электроснабжение'] = pd.Series(tarifs_electro)
+df['Теплоснабжение'] = pd.Series(tarifs_hot_water)
+print(df)
+# df = pd.DataFrame({'Приказ': Приказы})
+# df['Распоряжения'] = pd.Series(Распоряжения)
+# df['Дополнительные_соглашения'] = pd.Series(Дополнительные_соглашения)
+# df['Письма'] = pd.Series(Письма)
+
+df.to_csv('filter.csv', sep='\t', encoding='utf-8')
+# print(df)
+
